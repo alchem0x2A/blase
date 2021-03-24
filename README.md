@@ -7,7 +7,10 @@ Python module for drawing and rendering ASE (Atomic Simulation Environment) atom
 
 For the introduction of ASE , please visit https://wiki.fysik.dtu.dk/ase/index.html
 
-* Support all file-formats using by ASE, including cif, xyz, cube, pdb, json, VASP-out and son.
+* Support all file-formats using by ASE, including cif, xyz, cube, pdb, json, VASP-out and so on.
+* Ball & stick
+* Polyhedral
+* Meta ball
 * GPU rendering and HPC jobs
 
 
@@ -26,15 +29,19 @@ For the introduction of ASE , please visit https://wiki.fysik.dtu.dk/ase/index.h
 
 ### Installation
 
-Clone this repo. Add it to your PYTHONPATH.
+Clone this repo. Add it to your PYTHONPATH and PATH. On windows, you can edit the system environment variables.
 
-``` python
+``` sh
 export PYTHONPATH=~/apps/blase:$PYTHONPATH
-export BLASE_COMMAND="~/apps/blase/bin/run-blase.py"
-export BLENDER_COMMAND="~/bin/blender"
-````
+export PATH=~/apps/blase/bin:$PATH
+export BLASE_PATH="~/apps/blase/"
+```
+
+You can specify the location of blender by ```sh export BLENDER_COMMAND="~/bin/blender" ```, otherwise blase will use the default blender command in the system.
 
 ### How to use
+* Run from command line directly, supporting functions from build inside blase.  ```blase_gui h2o.xyz ```
+
 * Run from python code directly, supporting functions from build inside blase.  ``` python examples/c2h6so.py ```
 
 
@@ -142,6 +149,65 @@ write_blender(atoms, display=False, **kwargs)
 <img src="examples/figs/testcube.png" width="500"/>
 
 
+#### Polyhedra
+A example to draw polyhedra.
+
+```python
+from ase.io import read, write
+from blase.tools import write_blender
+
+atoms = read('tio2.cif')
+kwargs = {'show_unit_cell': 1, 
+          'engine': 'BLENDER_WORKBENCH',
+          'radii': 0.6,
+          'bond_cutoff': 1.0,
+          'search_pbc': {'search_dict': {'Ti': ['O']}},
+          'polyhedra_dict': {'Ti': ['O']},
+          'outfile': 'figs/test-search-bonds',
+          }
+write_blender(atoms, **kwargs)
+
+```
+<img src="examples/figs/test-search-bonds.png" width="500"/>
+<img src="examples/figs/test-search-bonds-2.png" width="500"/>
+
+#### Search molecule bonds out of unit cell
+```python
+from ase.io import read, write
+from blase.tools import write_blender, get_polyhedra_kinds, get_bondpairs
+atoms = read('anthraquinone.cif')
+kwargs = {'show_unit_cell': 1, 
+          'engine': 'BLENDER_WORKBENCH', #'BLENDER_EEVEE' #'BLENDER_WORKBENCH', CYCLES
+          'radii': 0.6,
+          'bond_cutoff': 1.0,
+          'search_pbc': {'molecule_list':[['C', 'C'], ['C', 'O']]},
+          'outfile': 'figs/test-search-molecule',
+          }
+write_blender(atoms, **kwargs)
+```
+<img src="examples/figs/test-search-molecule.png" width="500"/>
+
+#### Cut surface
+A example to cut (110) surface, with distance from origin to be d.
+```python
+from ase.build import bulk
+from blase.tools import write_blender
+
+atoms = bulk('Pt', cubic = True)
+atoms = atoms*[6, 6, 6]
+
+kwargs = {'show_unit_cell': 1, 
+          'engine': 'BLENDER_WORKBENCH', #'BLENDER_EEVEE' #'BLENDER_WORKBENCH', CYCLES
+          'radii': 1.0,
+          # 'display': True,
+          'boundary_list': [{'d': 10.0, 'index': [1, 1, 0]}],
+          'outfile': 'figs/test-boundary',
+          }
+write_blender(atoms, **kwargs)
+```
+<img src="examples/figs/test-boundary.png" width="500"/>
+
+
 
 
 #### Set different kind of atoms for the same element
@@ -222,5 +288,6 @@ bobj.draw_atoms(bsdf_inputs = bsdf_inputs)
 
 ### To do
 
-
+* cut boundary for isosurface
+* add panel to manipulate the atoms interactively
 * add animation
