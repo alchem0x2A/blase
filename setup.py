@@ -11,9 +11,9 @@ setup(name = 'blase',
       packages=['blase'],
       long_description='''Python module for drawing and rendering ase atoms objects using blender.''',
       install_requires=[
-          "blender"
-      	  "ase"
+          # "blender"
+      	  "ase",
           "numpy",
-          "scipy",
-          "skimage"
+          "scipy==1.5.2",
+          # "skimage"
 ],)
