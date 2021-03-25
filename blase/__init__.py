@@ -5,3 +5,4 @@ try:
 except ImportError:
     warnings.warn("The module bpy cannot be imported. Please use the Blender-bundled python for generating files.")
 
+import blase.monkey_patch
