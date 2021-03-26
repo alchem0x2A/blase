@@ -7,6 +7,9 @@ import sys
 
 # Step 1: define a new format
 define_io_format("blender", "Blender exporter", "1F", module="blender")
+if "blender" not in ioformats.keys():
+    raise KeyError(("ASE will not recognize blender as valid format!"
+                    " The monkey patching fails, please check."))
 
 # Step 2: dynamically load io
 _monkey_mod = import_module("blase.ase_io")
